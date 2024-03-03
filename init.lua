@@ -636,6 +636,7 @@ local servers = {
   -- rust_analyzer = {},
   tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
+  ruff_lsp = {},
 
   lua_ls = {
     Lua = {
@@ -776,6 +777,10 @@ vim.api.nvim_create_autocmd("BufEnter", {
 })
 
 vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree });
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile"}, {
+  pattern = {"Jenkinsfile"},
+  command = "set filetype=groovy"
+})
 vim.keymap.set('n', '<leader>k', ':tabclose<cr>')
 vim.keymap.set('n', '<leader>b', ':NvimTreeToggle<cr>')
 
