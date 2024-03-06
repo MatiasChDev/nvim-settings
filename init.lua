@@ -258,6 +258,16 @@ require('lazy').setup({
   },
 
   {
+    "lopi-py/luau-lsp.nvim",
+    opts = {
+      ...
+    },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+  },
+
+  {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
     -- See `:help lualine.txt`
@@ -602,6 +612,7 @@ end
 require('which-key').register {
   ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
+
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
@@ -660,6 +671,18 @@ local mason_lspconfig = require 'mason-lspconfig'
 
 mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
+}
+
+require("luau-lsp").setup {
+  sourcemap = {
+    enabled = true,
+    autogenerate = true, -- automatic generation when the server is attached
+    rojo_project_file = "default.project.json"
+  },
+  types = {
+    roblox = true,
+    roblox_security_level = "PluginSecurity",
+  },
 }
 
 mason_lspconfig.setup_handlers {
@@ -786,3 +809,11 @@ vim.keymap.set('n', '<leader>b', ':NvimTreeToggle<cr>')
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- vim.cmd([[
+--augroup _luau
+--autocmd!
+--autocmd BufRead,BufEnter *.luau set filetype=luau
+--augroup end
+--]])
+
