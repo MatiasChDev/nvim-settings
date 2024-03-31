@@ -47,6 +47,13 @@ vim.g.maplocalleader = ' '
 vim.g.loaded_netrw       = 1
 vim.g.loaded_netrwPlugin = 1
 
+local swap_then_open_tab = function()
+    local api = require("nvim-tree.api")
+    local node = api.tree.get_node_under_cursor()
+    vim.cmd("wincmd l")
+    api.node.open.tab(node)
+end
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
 --    `:help lazy.nvim.txt` for more info
@@ -61,6 +68,17 @@ if not vim.loop.fs_stat(lazypath) then
     lazypath,
   }
 end
+
+local function my_on_attach(bufnr)
+  local api = require "nvim-tree.api"
+
+  -- default mappings
+  api.config.mappings.default_on_attach(bufnr)
+
+  -- custom mappings
+  vim.keymap.set('n', 't', swap_then_open_tab)
+end
+
 vim.opt.rtp:prepend(lazypath)
 
 -- [[ Configure plugins ]]
@@ -86,7 +104,12 @@ require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
-      { 'williamboman/mason.nvim', config = true },
+      { 'williamboman/mason.nvim', config = true, opts = {
+        ensure_installed = {
+          "mypy",
+          "ruff",
+        }
+      }},
       'williamboman/mason-lspconfig.nvim',
 
       -- Useful status updates for LSP
@@ -237,10 +260,10 @@ require('lazy').setup({
     },
     config = function()
       require("nvim-tree").setup {
+        on_attach = my_on_attach,
         tab = {
           sync = {
             open = true,
-            close = true
           }
         }
       }
@@ -277,13 +300,15 @@ require('lazy').setup({
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
     -- See `:help lualine.txt`
     opts = {
       options = {
-        icons_enabled = false,
+        icons_enabled = true,
         theme = 'horizon',
         component_separators = '|',
         section_separators = '',
+        disabled_filetypes = { 'packer', 'NvimTree' }
       },
     },
   },
@@ -342,7 +367,7 @@ require('lazy').setup({
   --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {})
 
 -- [[ Setting options ]]
@@ -654,7 +679,7 @@ local servers = {
   -- rust_analyzer = {},
   tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
-  ruff_lsp = {},
+  -- ruff_lsp = {},
 
   lua_ls = {
     Lua = {
@@ -823,4 +848,6 @@ vim.keymap.set('n', '<leader>b', ':NvimTreeToggle<cr>')
 --autocmd BufRead,BufEnter *.luau set filetype=luau
 --augroup end
 --]])
+
+require "custom.evil_lualine"
 
